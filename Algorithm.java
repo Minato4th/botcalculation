@@ -3,6 +3,9 @@ package password;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class Algorithm {
 
@@ -22,6 +25,7 @@ public class Algorithm {
         SYMBOL_45('-'),
         SYMBOL_46('.'),
         SYMBOL_47('/'),
+        //numbers are here
         SYMBOL_58(':'),
         SYMBOL_59(';'),
         SYMBOL_60('<'),
@@ -57,29 +61,81 @@ public class Algorithm {
             33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 58, 59, 60, 61, 62, 63, 64, 91, 92, 93, 94, 95, 96, 123, 124, 125, 126
     };
 
+    private static char[] numbers = {'1', '2', '3', '4', '5', '6', '7', '8', '9', '0'};
+    private static char[] lowerCase = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p',
+            'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
+    private static char[] upperCase = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
+            'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
+    private static char[] characters = {'!', '"', '#', '$', '%', '&', '\'', '(', ')', '*', '+', ',', '-', '.', '/',
+            ':', ';', '<', '=', '>', '?', '@', ']', '\\', '[', '^', '_', '`', '}', '|', '{', '~'};
+
     public static void main(String[] args) {
-        String pass = hashPassword2("1");
+        String pass = hashPassword2("5");
         System.out.println(pass);
         System.out.println(securePassword(pass));
-        System.out.println(securePasswordFullEscapeChar(pass));
-        System.out.println(securePasswordOnlyLetters(pass));
-        System.out.println(securePasswordEscape(pass));
+//        System.out.println(securePasswordFullEscapeChar(pass));
+//        System.out.println(securePasswordOnlyLetters(pass));
+//        System.out.println(securePasswordEscape(pass));
         System.out.println(securePasswordProgrammatic(pass));
     }
 
     public static String securePasswordProgrammatic(String hashPassword) {
         StringBuilder result = new StringBuilder();
+
+        List<List<Integer>> script = new ArrayList<>(Arrays.asList(
+                new ArrayList<>(Arrays.asList(1, 2, 3, 4)),
+                new ArrayList<>(Arrays.asList(1, 2, 3, 4)),
+                new ArrayList<>(Arrays.asList(1, 2, 3, 4)),
+                new ArrayList<>(Arrays.asList(1, 2, 3, 4))
+        ));
+
+        int constant = hashPassword.chars().sum() % 10;
+        int level = 0;
         for (int i = 0, j = 8; i < hashPassword.length(); i += 8, j += 8) {
             String letters = hashPassword.substring(i, j);
 
+            //1qW@ 2aS# 3zX$ 4eR%
             int sum = letters.chars().sum();
-            while (sum > 125) {
-                sum -= 90;
+
+            int charType = getCharType(constant, script.get(level));
+
+            if (script.get(level).get(charType) == 1) {
+                sum = sum % 10;
+                sum = numbers[sum];
+            } else if (script.get(level).get(charType) == 2) {
+//                sum = sum % 10;
+                sum = getLetter(sum, lowerCase);
+            } else if (script.get(level).get(charType) == 3) {
+//                sum = sum % 10;
+                sum = getLetter(sum, upperCase);
+            } else if (script.get(level).get(charType) == 4) {
+//                sum = sum % 10;
+                sum = getLetter(sum, characters);
             }
 
-            result.append((char) sum);
+            script.get(level).remove(charType);
+
+            result.append((char)sum);
+            if (j % 32 == 0) {
+                level++;
+            }
         }
         return result.toString();
+    }
+
+    private static int getLetter(int sum, char[] chars) {
+        while (sum >= chars.length) {
+            sum = sum - chars.length;
+        }
+        sum = chars[sum];
+        return sum;
+    }
+
+    private static int getCharType(int constant, List<Integer> script) {
+        while (constant >= script.size()) {
+            constant = constant - script.size();
+        }
+        return constant;
     }
 
     public static String securePasswordEscape(String hashPassword) {
@@ -93,45 +149,45 @@ public class Algorithm {
             }
 
             switch (sum) {
-                case 34 :
+                case 34:
                     sum = 33;
                     break;
-                case 39 :
-                case 43 :
-                case 44 :
+                case 39:
+                case 43:
+                case 44:
                     sum = 35;
                     break;
-                case 45 :
-                case 46 :
-                case 47 :
+                case 45:
+                case 46:
+                case 47:
                     sum = 36;
                     break;
-                case 58 :
-                case 59 :
-                case 60 :
+                case 58:
+                case 59:
+                case 60:
                     sum = 37;
                     break;
-                case 61 :
-                case 62 :
-                case 63 :
+                case 61:
+                case 62:
+                case 63:
                     sum = 38;
                     break;
-                case 91 :
-                case 92 :
+                case 91:
+                case 92:
                     sum = 40;
                     break;
-                case 93 :
-                case 95 :
+                case 93:
+                case 95:
                     sum = 41;
                     break;
-                case 96 :
-                case 123 :
+                case 96:
+                case 123:
                     sum = 42;
                     break;
-                case 124 :
+                case 124:
                     sum = 64;
                     break;
-                case 125 :
+                case 125:
                     sum = 94;
                     break;
             }
