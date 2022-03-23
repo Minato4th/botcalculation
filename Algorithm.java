@@ -73,7 +73,7 @@ public class Algorithm {
         String pass = hashPassword2("5");
         System.out.println(pass);
         System.out.println(securePassword(pass));
-//        System.out.println(securePasswordFullEscapeChar(pass));
+        System.out.println(securePasswordFullEscapeChar(pass));
 //        System.out.println(securePasswordOnlyLetters(pass));
 //        System.out.println(securePasswordEscape(pass));
         System.out.println(securePasswordProgrammatic(pass));
